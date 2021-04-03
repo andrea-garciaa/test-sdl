@@ -106,46 +106,65 @@ int main(int argc, char** argv)
     glBindVertexArray(0);
 
     // prepare shaders
-    int vertshader = loadShaderFromFile("vertex.glsl", GL_VERTEX_SHADER);
-    int fragshader = loadShaderFromFile("fragment.glsl", GL_FRAGMENT_SHADER);
+    int success, vertshader, fragshader;
 
-    if (!vertshader || !fragshader) {
-        char infolog[512];
+    vertshader = loadShaderFromFile("vertex.glsl", GL_VERTEX_SHADER);
 
-        if (!vertshader) {
+    if (vertshader) {
+        glGetShaderiv(vertshader, GL_COMPILE_STATUS, &success);
+
+        if (success == GL_TRUE) {
+            fragshader = loadShaderFromFile("fragment.glsl", GL_FRAGMENT_SHADER);
+
+            if (fragshader) {
+                glGetShaderiv(fragshader, GL_COMPILE_STATUS, &success);
+
+                if (success == GL_TRUE) {
+                    // link shader objects into a shader program
+                    char infolog[512];
+
+                    shaderprog = glCreateProgram();
+                    glAttachShader(shaderprog, vertshader);
+                    glAttachShader(shaderprog, fragshader);
+                    glLinkProgram(shaderprog);
+                    glGetProgramiv(shaderprog, GL_LINK_STATUS, &success);
+
+                    if (success == GL_FALSE) {
+                        glGetProgramInfoLog(shaderprog, sizeof(infolog), NULL, infolog);
+                        fprintf(stderr, "shader program linking failed:\n%s\n", infolog);
+                        keeprunning = false;
+                    }
+
+                    // no longer needed once linked
+                    glDeleteShader(vertshader);
+                    glDeleteShader(fragshader);
+                }
+                else {
+                    char infolog[512];
+                    glGetShaderInfoLog(fragshader, sizeof(infolog), NULL, infolog);
+                    fprintf(stderr, "fragment shader compilation failed:\n%s\n", infolog);
+
+                    keeprunning = false;
+                }
+            }
+            else {
+                fprintf(stderr, "%s\n", "fragment.glsl not found");
+                keeprunning = false;
+            }
+        }
+        else {
+            char infolog[512];
             glGetShaderInfoLog(vertshader, sizeof(infolog), NULL, infolog);
             fprintf(stderr, "vertex shader compilation failed:\n%s\n", infolog);
-        }
 
-        if (!fragshader) {
-            glGetShaderInfoLog(fragshader, sizeof(infolog), NULL, infolog);
-            fprintf(stderr, "fragment shader compilation failed:\n%s\n", infolog);
-        }
-
-        keeprunning = false;
-    }
-    else {
-        // link shader objects into a shader program
-        char infolog[512];
-
-        shaderprog = glCreateProgram();
-        glAttachShader(shaderprog, vertshader);
-        glAttachShader(shaderprog, fragshader);
-        glLinkProgram(shaderprog);
-
-        int success = 0;
-        glGetProgramiv(shaderprog, GL_LINK_STATUS, &success);
-
-        if (!success) {
-            glGetProgramInfoLog(shaderprog, sizeof(infolog), NULL, infolog);
-            fprintf(stderr, "shader program linking failed:\n%s\n", infolog);
             keeprunning = false;
         }
-
-        // no longer needed once linked
-        glDeleteShader(vertshader);
-        glDeleteShader(fragshader);
     }
+    else {
+        fprintf(stderr, "%s\n", "vertex.glsl not found");
+        keeprunning = false;
+    }
+
 
     // properties
     //------------------------
@@ -352,9 +371,9 @@ int loadShaderFromFile(const char* filename, unsigned int shadertype)
 
         char* buffer = malloc(size);
         if (buffer && fread(buffer, size, 1, f)) {
-            int success = loadShaderFromBuffer(buffer, shadertype);
+            int shader = loadShaderFromBuffer(buffer, shadertype);
             free(buffer);
-            return success;
+            return shader;
         }
     }
 
@@ -368,10 +387,7 @@ int loadShaderFromBuffer(const char* buffer, unsigned int shadertype)
     unsigned int shader = glCreateShader(shadertype);
     glShaderSource(shader, 1, &buffer, NULL);
     glCompileShader(shader);
-
-    int success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    return success;
+    return shader;
 }
 
 
