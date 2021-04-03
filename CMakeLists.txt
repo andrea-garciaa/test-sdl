@@ -11,19 +11,20 @@ endif()
 
 #========== Global Configurations =============#
 #----------------------------------------------#
-project(something CXX)
-set(CMAKE_CXX_STANDARD 14)
+project(something C)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(SDL2 CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 
 #========== Targets Configurations =============#
 
 # Build an executable
-file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-add_executable(something ${SOURCE_FILES})
-target_link_libraries(something PRIVATE SDL2::SDL2 SDL2::SDL2main)
+file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
+add_executable(something ${SOURCE_FILES} ${HEADER_FILES})
+target_link_libraries(something PRIVATE SDL2::SDL2 SDL2::SDL2main GLEW::GLEW)
 
 if(UNIX)
 	target_link_libraries(something PRIVATE GL)
