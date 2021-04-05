@@ -321,7 +321,7 @@ void onMouseMotion(SDL_MouseMotionEvent motion)
         }
     }
 
-    yaw += xoffset;
+    yaw -= xoffset;
     pitch += yoffset;
 
     if (pitch > 89.0f)
@@ -352,6 +352,8 @@ void onMouseButton(SDL_MouseButtonEvent btnevent)
         case SDL_BUTTON_LEFT:
             canwarp = true;
             break;
+        case SDL_BUTTON_RIGHT:
+            canwarp = false;
         default:
             break;
         }
