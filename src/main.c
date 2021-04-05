@@ -20,7 +20,7 @@ static void onMouseMotion(SDL_MouseMotionEvent motion);
 static void onMouseScroll(SDL_MouseWheelEvent whevent);
 static void onMouseButton(SDL_MouseButtonEvent btnevent);
 static int loadShaderFromFile(const char* filename, unsigned int shadertype);
-static int loadShaderFromBuffer(const char* buffer, unsigned int shadertype);
+static int loadShaderFromBuffer(const char* buffer, unsigned int shadertype, int len);
 static void render();
 static void updateCamera();
 
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
                 }
             }
             else {
-                fprintf(stderr, "%s\n", "fragment.glsl not found");
+                fprintf(stderr, "%s\n", "failed to load fragment.glsl");
                 keeprunning = false;
             }
         }
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
         }
     }
     else {
-        fprintf(stderr, "%s\n", "vertex.glsl not found");
+        fprintf(stderr, "%s\n", "failed to load vertex.glsl");
         keeprunning = false;
     }
 
@@ -362,7 +362,7 @@ void onMouseButton(SDL_MouseButtonEvent btnevent)
 //-----------------------------------------------
 int loadShaderFromFile(const char* filename, unsigned int shadertype)
 {
-    FILE* f = fopen(filename, "r");
+    FILE* f = fopen(filename, "rb");
     if (f)
     {
         fseek(f, 0, SEEK_END);
@@ -371,7 +371,7 @@ int loadShaderFromFile(const char* filename, unsigned int shadertype)
 
         char* buffer = malloc(size);
         if (buffer && fread(buffer, size, 1, f)) {
-            int shader = loadShaderFromBuffer(buffer, shadertype);
+            int shader = loadShaderFromBuffer(buffer, shadertype, size);
             free(buffer);
             return shader;
         }
@@ -382,10 +382,10 @@ int loadShaderFromFile(const char* filename, unsigned int shadertype)
 
 
 //-----------------------------------------------
-int loadShaderFromBuffer(const char* buffer, unsigned int shadertype)
+int loadShaderFromBuffer(const char* buffer, unsigned int shadertype, int len)
 {
     unsigned int shader = glCreateShader(shadertype);
-    glShaderSource(shader, 1, &buffer, NULL);
+    glShaderSource(shader, 1, &buffer, &len);
     glCompileShader(shader);
     return shader;
 }
