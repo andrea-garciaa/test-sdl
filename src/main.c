@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL.h>
+#ifdef _WIN32
 #include <GL/glew.h>
+#endif
 #include <GL/gl.h>
 
 #include "mymath.h"
@@ -66,9 +68,14 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    glewExperimental = true;
     SDL_GLContext context = SDL_GL_CreateContext(window);
+
+#ifdef WIN32
+    glewExperimental = true;
     if (!context || glewInit() != GLEW_OK) {
+#else
+    if (!context) {
+#endif
         SDL_DestroyWindow(window);
         SDL_Quit();
     }
