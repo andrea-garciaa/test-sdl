@@ -27,7 +27,7 @@ bool mesh_load(struct mesh* mesh, const char* filename)
         if (!array_new(&vertexarray, vertexarraylimit, 32)) return false;
         mesh->flags |= MESH_OWNVERTEXMEMORY;
     } else {
-        vertexarray.buf = mesh->vertices;
+        vertexarray.buf = (unsigned char*)mesh->vertices;
         vertexarray.size = vertexarraylimit;
         vertexarray.index = 0;
         vertexarray.grow = 32;
@@ -40,7 +40,7 @@ bool mesh_load(struct mesh* mesh, const char* filename)
         if (!array_new(&facearray, facearraylimit, 32)) return false;
         mesh->flags |= MESH_OWNFACEMEMORY;
     } else {
-        facearray.buf = mesh->faces;
+        facearray.buf = (unsigned char*)mesh->faces;
         facearray.size = facearraylimit;
         facearray.index = 0;
         facearray.grow = 32;
@@ -108,9 +108,9 @@ bool mesh_load(struct mesh* mesh, const char* filename)
         }
     }
 
-    mesh->vertices = vertexarray.buf;
+    mesh->vertices = (float*)vertexarray.buf;
     mesh->numvertices = vertexarray.index / sizeof(float) / 3;
-    mesh->faces = facearray.buf;
+    mesh->faces = (float*)facearray.buf;
     mesh->numfaces = facearray.index / sizeof(float) / 3;
 
     return true;

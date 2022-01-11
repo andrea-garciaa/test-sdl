@@ -1,5 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL.h>
@@ -243,19 +243,19 @@ int main(int argc, char** argv)
 void processInput(void)
 {
     int numkeys = 0;
-    Uint8* state = SDL_GetKeyboardState(&numkeys);
+    const Uint8* state = SDL_GetKeyboardState(&numkeys);
 
     if (numkeys) {
         if (state[SDL_SCANCODE_UP]) {
             struct vec3 tmp = { front.x, front.y, front.z };
             vec3_mulf(&tmp, movementspeed * deltatime);
-            vec3_add(&position, &tmp);
+            vec3_sub(&position, &tmp);
         }
 
         if (state[SDL_SCANCODE_DOWN]) {
             struct vec3 tmp = { front.x, front.y, front.z };
             vec3_mulf(&tmp, movementspeed * deltatime);
-            vec3_sub(&position, &tmp);
+            vec3_add(&position, &tmp);
         }
 
         if (state[SDL_SCANCODE_LEFT]) {
@@ -327,6 +327,9 @@ void onMouseMotion(SDL_MouseMotionEvent motion)
             return;
         }
     }
+	else {
+		return;
+	}
 
     yaw -= xoffset;
     pitch += yoffset;
@@ -378,7 +381,7 @@ int loadShaderFromFile(const char* filename, unsigned int shadertype)
         int size = ftell(f);
         fseek(f, 0, SEEK_SET);
 
-        char* buffer = malloc(size);
+        char* buffer = (char*)malloc(size);
         if (buffer && fread(buffer, size, 1, f)) {
             int shader = loadShaderFromBuffer(buffer, shadertype, size);
             free(buffer);
@@ -410,19 +413,19 @@ void render()
 
     float projection[4][4];
     mat4_perspective(projection, deg2rad(zoom), width / height, 0.1f, 100.0f);
-    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "projection"), 1, GL_FALSE, projection);
+    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "projection"), 1, GL_FALSE, (const float*)projection);
 
     float view[4][4];
     struct vec3 target = { position.x, position.y, position.z };
     vec3_add(&target, &front);
     mat4_lookat(view, &position, &target, &up);
-    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "view"), 1, GL_FALSE, view);
+    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "view"), 1, GL_FALSE, (const float*)view);
 
     glBindVertexArray(vao);
 
     float model[4][4];
     mat4_ident(model);
-    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "model"), 1, GL_FALSE, model);
+    glUniformMatrix4fv(glGetUniformLocation(shaderprog, "model"), 1, GL_FALSE, (const float*)model);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }

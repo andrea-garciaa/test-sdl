@@ -11,7 +11,7 @@ endif()
 
 #========== Global Configurations =============#
 #----------------------------------------------#
-project(something C)
+project(something CXX)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(SDL2 CONFIG REQUIRED)
@@ -24,7 +24,7 @@ endif()
 #========== Targets Configurations =============#
 
 # Build an executable
-file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
 add_executable(something ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(something PRIVATE SDL2::SDL2 SDL2::SDL2main)

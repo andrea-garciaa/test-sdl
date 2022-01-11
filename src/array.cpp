@@ -1,5 +1,7 @@
 #include "array.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <memory.h>
 
 bool array_grow(struct dynarray* array, unsigned int bytes)
 {
@@ -8,7 +10,7 @@ bool array_grow(struct dynarray* array, unsigned int bytes)
 
     void* reallocatedbuf = realloc(array->buf, array->size + (bytes * array->grow));
     if (reallocatedbuf) {
-        array->buf = reallocatedbuf;
+        array->buf = (unsigned char*)reallocatedbuf;
         array->size += (bytes * array->grow);
         return true;
     }
@@ -20,7 +22,7 @@ bool array_resize(struct dynarray* array, unsigned int size)
 {
     void* reallocatedbuf = realloc(array->buf, size);
     if (reallocatedbuf) {
-        array->buf = reallocatedbuf;
+        array->buf = (unsigned char*)reallocatedbuf;
         array->size = size;
         return true;
     }
@@ -32,7 +34,7 @@ bool array_new(struct dynarray* array, unsigned int size, unsigned int grow)
 {
     void* buf = malloc(size);
     if (buf) {
-        array->buf = buf;
+        array->buf = (unsigned char*)buf;
         array->size = size;
         array->index = 0;
         array->grow = grow;

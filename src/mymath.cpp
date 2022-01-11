@@ -423,9 +423,9 @@ void mat4_lookat(float result[4][4], struct vec3* eye, struct vec3* center, stru
     result[0][2] = -zaxis.x;
     result[1][2] = -zaxis.y;
     result[2][2] = -zaxis.z;
-    result[3][0] = -vec_dot(3, &xaxis, eye);
-    result[3][1] = -vec_dot(3, &yaxis, eye);
-    result[3][2] = -vec_dot(3, &zaxis, eye);
+    result[3][0] = -vec_dot(3, (float*)&xaxis, (float*)eye);
+    result[3][1] = -vec_dot(3, (float*)&yaxis, (float*)eye);
+    result[3][2] = -vec_dot(3, (float*)&zaxis, (float*)eye);
 }
 
 
