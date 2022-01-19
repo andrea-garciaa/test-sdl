@@ -29,6 +29,8 @@ static void updateCamera();
 // -- Globals -----------------------------------
 static SDL_Window* window;
 static bool canwarp;
+static int warpx;
+static int warpy;
 static int width;
 static int height;
 static float deltatime;
@@ -46,8 +48,6 @@ static float pitch;
 static float movementspeed;
 static float mousesensitivity;
 static float zoom;
-static int lastx;
-static int lasty;
 
 //-----------------------------------------------
 int main(int argc, char** argv)
@@ -175,9 +175,8 @@ int main(int argc, char** argv)
 
     // properties
     //------------------------
-    SDL_GetMouseState(&lastx, &lasty);
     lastframe = 0.0f;
-    canwarp = true;
+    canwarp = false;
     front.x = 0.0f;
     front.y = 0.0f;
     front.z = -1.0f;
@@ -273,7 +272,7 @@ void processInput(void)
         if (state[SDL_SCANCODE_ESCAPE])
             canwarp = false;
 
-        //printf("x:%f y:%f z:%f yaw:%f pitch:%f deltatime:%f\n", position.x, position.y, position.z, yaw, pitch, deltatime);
+        printf("x:%f y:%f z:%f yaw:%f pitch:%f deltatime:%f\n", position.x, position.y, position.z, yaw, pitch, deltatime);
     }
 }
 
@@ -284,7 +283,9 @@ void onWindowEvent(SDL_WindowEvent winevent)
     switch (winevent.event) {
     case SDL_WINDOWEVENT_RESIZED:
         width = winevent.data1;
+		warpx = width / 2;
         height = winevent.data2;
+		warpy = height / 2;
         glViewport(0, 0, width, height);
         printf("window resized to %dx%d\n", width, height);
         break;
@@ -297,50 +298,22 @@ void onWindowEvent(SDL_WindowEvent winevent)
 //-----------------------------------------------
 void onMouseMotion(SDL_MouseMotionEvent motion)
 {
-	int xoffset = (motion.x - lastx);
-	int yoffset = (motion.y - lasty);
+	int xoffset = (motion.x - warpx);
+	int yoffset = (motion.y - warpy);
 
-    lastx = motion.x;
-    lasty = motion.y;
+    if (canwarp && (xoffset || yoffset)) {
+		SDL_WarpMouseInWindow(window, warpx, warpy);
 
-    if (canwarp) {
-        bool dowarp = false;
+		yaw -= xoffset * mousesensitivity;
+		pitch += yoffset * mousesensitivity;
 
-        if (lastx == 0) {
-            dowarp = true;
-            lastx = width - 2;
-        }
-        if (lastx >= width - 1) {
-            dowarp = true;
-            lastx = 1;
-        }
-        if (lasty == 0) {
-            dowarp = true;
-            lasty = height - 2;
-        }
-        if (lasty >= height - 1) {
-            dowarp = true;
-            lasty = 1;
-        }
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
 
-        if (dowarp) {
-            SDL_WarpMouseInWindow(window, lastx, lasty);
-            return;
-        }
+		updateCamera();
     }
-	else {
-		return;
-	}
-
-    yaw -= xoffset * mousesensitivity;
-    pitch += yoffset * mousesensitivity;
-
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    updateCamera();
 }
 
 
@@ -361,6 +334,7 @@ void onMouseButton(SDL_MouseButtonEvent btnevent)
     if (btnevent.state == SDL_PRESSED) {
         switch (btnevent.button) {
         case SDL_BUTTON_LEFT:
+			SDL_WarpMouseInWindow(window, warpx, warpy);
             canwarp = true;
             break;
         case SDL_BUTTON_RIGHT:
