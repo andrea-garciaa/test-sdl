@@ -273,7 +273,7 @@ void processInput(void)
         if (state[SDL_SCANCODE_ESCAPE])
             canwarp = false;
 
-        printf("%f %f %f vel:%f deltatime:%f\n", position.x, position.y, position.z, movementspeed * deltatime, deltatime);
+        //printf("x:%f y:%f z:%f yaw:%f pitch:%f deltatime:%f\n", position.x, position.y, position.z, yaw, pitch, deltatime);
     }
 }
 
@@ -297,8 +297,9 @@ void onWindowEvent(SDL_WindowEvent winevent)
 //-----------------------------------------------
 void onMouseMotion(SDL_MouseMotionEvent motion)
 {
-    int xoffset = (motion.x - lastx) * mousesensitivity;
-    int yoffset = (motion.y - lasty) * mousesensitivity;
+	int xoffset = (motion.x - lastx);
+	int yoffset = (motion.y - lasty);
+
     lastx = motion.x;
     lasty = motion.y;
 
@@ -331,8 +332,8 @@ void onMouseMotion(SDL_MouseMotionEvent motion)
 		return;
 	}
 
-    yaw -= xoffset;
-    pitch += yoffset;
+    yaw -= xoffset * mousesensitivity;
+    pitch += yoffset * mousesensitivity;
 
     if (pitch > 89.0f)
         pitch = 89.0f;
@@ -432,9 +433,9 @@ void render()
 
 void updateCamera()
 {
-    front.x = cos(deg2rad(yaw)) * cos(deg2rad(pitch));
-    front.y = sin(deg2rad(pitch));
-    front.z = sin(deg2rad(yaw)) * cos(deg2rad(pitch));
+    front.x = cosf(deg2rad(yaw)) * cosf(deg2rad(pitch));
+    front.y = sinf(deg2rad(pitch));
+    front.z = sinf(deg2rad(yaw)) * cosf(deg2rad(pitch));
     vec3_normalize(&front);
     vec3_cross(&right, &front, &worldup);
     vec3_normalize(&right);
