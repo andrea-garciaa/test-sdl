@@ -176,7 +176,7 @@ int main(int argc, char** argv)
     // properties
     //------------------------
     lastframe = 0.0f;
-    canwarp = false;
+    canwarp = false; // mouse capture is initialized later (here after first click to virtually give focus to the camera and fix mouse at center, otherwise first mouse motion will find the mouse far from the center and camera will abnormally shift its target)
     front.x = 0.0f;
     front.y = 0.0f;
     front.z = -1.0f;
