@@ -1,6 +1,8 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
+#include <stdbool.h>
+
 #define MESH_OWNVERTEXMEMORY    0x1     // mesh vertex buffer is owned by the mesh manager 
 #define MESH_OWNFACEMEMORY      0x2     // mesh face buffer is owned by the mesh manager
 

@@ -1,15 +1,17 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL2/SDL.h>
+
 #ifdef _WIN32
 #include <GL/glew.h>
 #endif
 #include <GL/gl.h>
 
 #include "mymath.h"
-
 
 // -- Constants ---------------------------------
 #define DEFAULT_WIDTH 800
@@ -94,9 +96,10 @@ int main(int argc, char** argv)
 
     // prepare data to draw
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f,  0.5f, 0.0f
+        // positions            // colors
+        -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
+        0.0f,  0.5f, 0.0f,       1.0f, 1.0f, 0.0f
     };
 
     glGenVertexArrays(1, &vao);
@@ -106,8 +109,14 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // position attribute is 3 float sized, but we jump 6 floats to reach the next position attribute, because there is color attribute inbetween
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), NULL);
     glEnableVertexAttribArray(0);
+
+    // color attribute, same semantic as before, but last argument is first offset inside attrib array
+    // it is 3 float sized because there is 3 floats (position attribute) before our color attribute we specify herein
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -272,7 +281,7 @@ void processInput(void)
         if (state[SDL_SCANCODE_ESCAPE])
             canwarp = false;
 
-        printf("x:%f y:%f z:%f yaw:%f pitch:%f deltatime:%f\n", position.x, position.y, position.z, yaw, pitch, deltatime);
+        //printf("x:%f y:%f z:%f yaw:%f pitch:%f deltatime:%f\n", position.x, position.y, position.z, yaw, pitch, deltatime);
     }
 }
 

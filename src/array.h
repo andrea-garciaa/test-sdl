@@ -2,6 +2,7 @@
 #define _ARRAY_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 struct dynarray
 {

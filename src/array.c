@@ -1,6 +1,7 @@
 #include "array.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <memory.h>
 
 bool array_grow(struct dynarray* array, unsigned int bytes)
