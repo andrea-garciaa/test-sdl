@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define GL_GLEXT_PROTOTYPES 1
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #ifdef _WIN32
 #include <GL/glew.h>
